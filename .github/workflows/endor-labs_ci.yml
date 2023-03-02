@@ -1,0 +1,22 @@
+name: Endor Labs CI Scan
+on: 
+  push:
+    branches: '!main'
+  pull_request:
+    branches: main
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Scan with Endor Labs
+        uses: endorlabs/github-action@main
+        with:
+          api_key: a1p3iTt2g4PgvjXi
+          api_secret: ${{ secrets.ENDOR_API_SECRET }}
+          namespace: "darren-learn"
+          ci_run: true
