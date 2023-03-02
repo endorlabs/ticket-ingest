@@ -20,4 +20,4 @@ jobs:
           api_secret: ${{ secrets.ENDOR_API_SECRET }}
           namespace: "darren-learn"
           ci_run: true
-          additional_args: '--ci-run-tags="source_branch=${{ github.head_ref }},target_branch=${{ github.base_ref	}}"	
+          additional_args: '--ci-run-tags="source_branch=${{ github.head_ref }},target_branch=${{ github.base_ref	}}"'
