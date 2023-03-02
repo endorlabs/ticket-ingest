@@ -16,7 +16,7 @@ jobs:
       - name: Scan with Endor Labs
         uses: endorlabs/github-action@main
         with:
-          api_key: a1p3iTt2g4PgvjXi
+          api_key: ${{ vars.ENDOR_API_KEY }}
           api_secret: ${{ secrets.ENDOR_API_SECRET }}
           namespace: "darren-learn"
           ci_run: true
