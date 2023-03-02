@@ -1,4 +1,4 @@
-name: Endor Labs CI Scan
+name: Endor Labs Full Scan
 on: 
   push:
     branches: main
