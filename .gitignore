@@ -1,0 +1,7 @@
+.DS_Store
+.secrets/
+*.secret
+
+__pycache__
+*.pyc
+*.tmp
