@@ -1,7 +1,11 @@
 .DS_Store
 .secrets/
 *.secret
+*.json
+test-*.py
 
+.venv/
+.hypothesis/
 __pycache__
 *.pyc
 *.tmp
