@@ -15,7 +15,17 @@ pip3 install 'git+https://github.com/endorlabs/ticket-ingest.git'
 # Command-line usage (alpha):
 
 ```
-endor-ticket-ingestion [secrets_file]
+usage: endor-ticket-ingestion [-h] [--filter FILTER] [--dry-run] secrets_file
+
+Ingests findings from Endor Labs into Jira issues
+
+positional arguments:
+  secrets_file     Path to a TOML secret file
+
+options:
+  -h, --help       show this help message and exit
+  --filter FILTER  Specify a filter
+  --dry-run        Don't actually create issues
 ```
 
 Default secrets file is `ingestion.secret` in the current directory. Copy [ingestion.secret.example](ingestion.secret.example) and edit with your Endor Labs API and Jira Cloud URL/username/api-token ([manage your Atlassian Tokens here](https://id.atlassian.com/manage/api-tokens)).
@@ -57,6 +67,8 @@ This filter can be modified to suit your needs; as written, it will pull all fin
 - The finding is in a package that is a **Direct Dependency** of one of your org's package versions
 - The finding is in production code (defined as "not test/build-only code")
 - The finding's severity is Critical or High
+
+**NOTE:** you cannot use these filter references through the `--filter` command line option; you must expand them yourself
 
 ----
 
