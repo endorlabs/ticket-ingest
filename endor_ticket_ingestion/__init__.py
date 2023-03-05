@@ -35,7 +35,7 @@ def ingest_findings(secrets, findings_filter, dry_run=False):
         }
 
         # find out if theres already a ticket for this finding
-        jira_results = jira.jql(f'project=SCA and summary ~ "endor: {finding["uuid"]}"')
+        jira_results = jira.jql(f'project="{secrets["jira"]["project"]}" and summary ~ "endor: {finding["uuid"]}"')
         if jira_results['issues']:
             for issue in jira_results['issues']:
                 print(f'Found matching issue {issue["key"]} {issue["fields"]["summary"]}')  
