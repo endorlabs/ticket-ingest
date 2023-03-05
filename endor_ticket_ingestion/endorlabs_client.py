@@ -8,8 +8,15 @@ class EndorLabsClient(object):
     class FindingsFilter(enum.StrEnum):
         inDirectDependency = 'spec.finding_tags Contains "FINDING_TAGS_DIRECT"'
         inProductionCode = 'spec.finding_tags Contains "FINDING_TAGS_NORMAL"'
+        inReachableDependcy = 'spec.finding_tags Contains "FINDING_TAGS_REACHABLE_DEPENDENCY"'
+        inReachableFunction = 'spec.finding_tags Contains "FINDING_TAGS_REACHABLE_FUNCTION"'
+        sevIsLow = 'spec.level=="FINDING_LEVEL_LOW'
+        sevIsMedium = 'spec.level=="FINDING_LEVEL_MEDIUM'
         sevIsHigh = 'spec.level=="FINDING_LEVEL_HIGH"'
         sevIsCritical = 'spec.level=="FINDING_LEVEL_CRITICAL"'
+        hasFixAvailable = 'spec.finding_tags Contains "FINDING_TAGS_FIX_AVAILABLE"'
+        fixIsUpgrade = 'spec.remediation_action=="FINDING_REMEDIATION_UPGRADE"'
+        fromCIRun = 'context.type=="CONTEXT_TYPE_CI_RUN"'
 
     def __init__(self, namespace, auth=None, findings_filter=None, api_root='https://api.endorlabs.com'):
         """Connection to the EndorLabs API
@@ -25,16 +32,19 @@ class EndorLabsClient(object):
         self.namespace = namespace
         self.filter = self.FindingsFilter.inDirectDependency if findings_filter is None else findings_filter
         self._token = None
+        self._token_expires = None
         self._session = requests.Session()
 
     def refresh_auth(self, nocache=False):
         """Update Session headers with new bearer token
         """
         if not nocache and self._token is not None:
+            # TODO only return if current time is close to self._token_expires
             return
 
         response = requests.post(f'{self._api_root}/v1/auth/api-key', json=self.auth)
         self._token = response.json()['token']
+        self._token_expires = response.json()['expirationTime']
         self._session.headers.update({'Authorization': 'Bearer ' + self._token})
 
     def findings(self, findings_filter=None):

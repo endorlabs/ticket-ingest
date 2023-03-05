@@ -27,27 +27,29 @@ Default secrets file is `ingestion.secret` in the current directory. Copy [inges
 
 ```python
 from endor_ticket_ingestion import ingest_findings
-ingest_findings(
-        secrets, 
+ingest_findings(secrets, 
         f"""
         {EndorLabsClient.FindingsFilter.inDirectDependency}
         and {EndorLabsClient.FindingsFilter.inProductionCode}
         and ({EndorLabsClient.FindingsFilter.sevIsCritical} or {EndorLabsClient.FindingsFilter.sevIsHigh})
-        """)
+        """,
+        dry_run=False)
 ```
 
 `secrets` is a dict intended to be read from `ingestion.secret`, a TOML file. See [`ingestion.secret.example`](ingestion.secret.example) for format, from which you can infer the dict structure
+
+the second argument is a filter string, which can be built as pure text or using the `FindingsFilter` enum inside `EndorLabsClient`
 
 # Usage notes
 
 in `__main__.py` you will see that an issue filter has been defined with the following lines:
 
 ```python
-            f"""
-            {EndorLabsClient.FindingsFilter.inDirectDependency}
-            and {EndorLabsClient.FindingsFilter.inProductionCode}
-            and ({EndorLabsClient.FindingsFilter.sevIsCritical} or {EndorLabsClient.FindingsFilter.sevIsHigh})
-            """,
+DEFAULT_FILTER =f"""
+{EndorLabsClient.FindingsFilter.inDirectDependency}
+and {EndorLabsClient.FindingsFilter.inProductionCode}
+and ({EndorLabsClient.FindingsFilter.sevIsCritical} or {EndorLabsClient.FindingsFilter.sevIsHigh})
+"""
 ```
 
 This filter can be modified to suit your needs; as written, it will pull all findings that meet all the following criteria:
