@@ -4,9 +4,9 @@ Python3 module and demo app to assist extraction of Endor Labs findings for ease
 
 # Install
 
-**Requires python >= 3.11**
+**Requires python >= 3.11** --> check with `python3 --version`
 
-Clone, create a venv and activate it, then:
+Create a venv (e.g. `pythnon3 -v venv .venv`) and activate it (e.g. `source .venv/bin/activate`), then:
 
 ```zsh
 pip3 install 'git+https://github.com/endorlabs/ticket-ingest.git'
@@ -35,6 +35,8 @@ ingest_findings(
         and ({EndorLabsClient.FindingsFilter.sevIsCritical} or {EndorLabsClient.FindingsFilter.sevIsHigh})
         """)
 ```
+
+`secrets` is a dict intended to be read from `ingestion.secret`, a TOML file. See [`ingestion.secret.example`](ingestion.secret.example) for format, from which you can infer the dict structure
 
 # Usage notes
 
