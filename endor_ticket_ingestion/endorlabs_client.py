@@ -5,6 +5,7 @@ import enum
 import requests
 
 class EndorLabsClient(object):
+    MAX_API_ERRORS = 3
     class FindingsFilter(enum.StrEnum):
         inDirectDependency = 'spec.finding_tags Contains "FINDING_TAGS_DIRECT"'
         inProductionCode = 'spec.finding_tags Contains "FINDING_TAGS_NORMAL"'
@@ -59,11 +60,24 @@ class EndorLabsClient(object):
         pages_remain = True
 
         findings_list = []
-
+        error_count = 0
         while pages_remain:
             response = self._session.get(
                 f'{self._api_root}/v1/namespaces/{self.namespace}/findings', 
                 params={'list_parameters.filter': findings_filter, 'list_parameters.page_token': int(page_token)})
+
+            if response.status_code != 200:
+                error_count += 1
+        
+                if response.status_code == 404:
+                    req = response.request
+                    print(f"404 on {req.method} {req.url}", file=sys.stderr)
+                    print(f"Token expiration: {self._token_expires}", file=sys.stderr)
+                
+                print(response.text)
+                if error_count >= MAX_API_ERRORS:
+                    raise RuntimeError("Too many API errors for comfort")
+                continue
 
             result = response.json()
             findings = result['list']['objects']
