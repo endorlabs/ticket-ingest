@@ -29,6 +29,8 @@ def cli():
         except HTTPError as e:
             print(f'HTTP error {e.response.status_code}:\n{e.response.text}')
             return 1
+        except RuntimeError as e:
+            print(f'Error: {str(e)}')
     except KeyboardInterrupt as err:
         print("** Execution interrupted by Ctrl-C **", file=sys.stderr)
         return 127
