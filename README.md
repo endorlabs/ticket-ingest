@@ -6,7 +6,7 @@ Python3 module and demo app to assist extraction of Endor Labs findings for ease
 
 **Requires python >= 3.11** --> check with `python3 --version`
 
-Create a venv (e.g. `pythnon3 -v venv .venv`) and activate it (e.g. `source .venv/bin/activate`), then:
+Create a venv (e.g. `python3 -m venv .venv`) and activate it (e.g. `source .venv/bin/activate`), then:
 
 ```zsh
 pip3 install 'git+https://github.com/endorlabs/ticket-ingest.git'
