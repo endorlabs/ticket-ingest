@@ -42,8 +42,12 @@ def create_endor_client(secrets, findings_filter):
 def create_jira_client(secrets):
     jira_ticket_config = {
         'project': secrets['jira']['project'],
-        'type': secrets['jira']['issue_type']
+        'type': secrets['jira']['issue_type'],
+        'subtype': secrets['jira']['subtask_type']
     }
+    if 'priority' in secrets['jira']:
+        jira_ticket_config['prioritymap'] = secrets['jira']['priority']
+        
     jira = Jira(
         url=secrets['jira']['url'],
         username=secrets['jira']['username'],

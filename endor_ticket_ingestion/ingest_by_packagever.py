@@ -72,11 +72,20 @@ def ingest_findings_by_dep_ver(secrets, findings_filter, dry_run=False):
         common.status(f"{dep_name} ({data['uuid']}): {len(data['findings'])} findings")
 
         issue_priority = len(common.EndorPriorityRank)-1  # Higher numbers == lower priority
+        subtasks = []
        
         for pkg_name, indices in data['affected'].items():
             description = issue['description']
             description += f"h2. In package *{pkg_name}*:\n\n"
-            description += "||Summary||Advisory||Score||Severity||\n"
+            subdesc = "||Summary||Advisory||Score||Severity||\n"
+            subpriority = len(common.EndorPriorityRank)-1
+            subissue = {
+                'project': {'key': JIRA_TICKET_CONFIG['project']},
+                'summary': f'[Endor Labs] Update {dep_name} in {pkg_name}',
+                'description': '',
+                'issuetype': {'name': JIRA_TICKET_CONFIG['subtype']},
+            }
+
             for i in indices:
                 try:
                     finding = data['findings'][i]['finding']
@@ -96,9 +105,17 @@ def ingest_findings_by_dep_ver(secrets, findings_filter, dry_run=False):
                 finding_priority = common.EndorPriorityRank.index(level)
                 if finding_priority < issue_priority:
                     issue_priority = finding_priority
-                description += f"|{summary}|{advisory}|CVSS: {cvss}\nEPSS: {epss:2.1f}%|{level}|\n"
+                if finding_priority < subpriority:
+                    subpriority = finding_priority
+                subdesc += f"|{summary}|{advisory}|CVSS: {cvss}\nEPSS: {epss:2.1f}%|{level}|\n"
+                description += subdesc
+
+            #--- back to affected package level --
+            subissue['description'] = subdesc
+            subissue['priority'] = {'name': prioritymap[common.EndorPriorityRank[subpriority]]}
 
             issue['description'] = description + "\n"
+            subtasks.append(subissue)
             # print(issue['description'])
             # print(common.json_dump(issue))
         
@@ -115,6 +132,8 @@ def ingest_findings_by_dep_ver(secrets, findings_filter, dry_run=False):
                     common.status(f'Found matching issue {issue["key"]} {issue["fields"]["summary"]}')  
             elif dry_run:
                 common.status('Would create a ticket: '+issue["summary"])
+                for st in subtasks:
+                    common.status(f'  -> Would create sub-task: {st["summary"]}, priority {st["priority"]["name"]}')
             else:
                 # there wasn't a duplicate, let's create a new issue!
                 jira_issue = jira.create_issue(issue)
@@ -122,6 +141,9 @@ def ingest_findings_by_dep_ver(secrets, findings_filter, dry_run=False):
                 # attachment.filename = f'reachable_paths-{finding["uuid"]}.json'
                 common.status(f'Created {jira_issue["key"]}')
                 # jira.add_attachment_object(jira_issue["key"], attachment)
+                for st in subtasks:
+                    st['parent'] = {'key': jira_issue["key"]}
+                    jira.create_issue(st)
         except common.HTTPError as err:
             msg = f'HTTP Error communicating with Jira: {err.response.status_code}\n--> {err.response.url}\n--> {err.response.text}'
             if err.response.status_code == 404:
