@@ -18,6 +18,7 @@ class EndorLabsClient(object):
         hasFixAvailable = 'spec.finding_tags Contains "FINDING_TAGS_FIX_AVAILABLE"'
         fixIsUpgrade = 'spec.remediation_action=="FINDING_REMEDIATION_UPGRADE"'
         fromCIRun = 'context.type=="CONTEXT_TYPE_CI_RUN"'
+        notFromCIRun = 'context.type!="CONTEXT_TYPE_CI_RUN"'
 
     def __init__(self, namespace, auth=None, findings_filter=None, api_root='https://api.endorlabs.com'):
         """Connection to the EndorLabs API
@@ -75,7 +76,7 @@ class EndorLabsClient(object):
                     print(f"Token expiration: {self._token_expires}", file=sys.stderr)
                 
                 print(response.text)
-                if error_count >= MAX_API_ERRORS:
+                if error_count >= self.MAX_API_ERRORS:
                     raise RuntimeError("Too many API errors for comfort")
                 continue
 

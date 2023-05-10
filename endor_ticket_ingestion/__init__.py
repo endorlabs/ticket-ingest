@@ -1,28 +1,15 @@
 import io
 import json
 
-from .endorlabs_client import EndorLabsClient
+from . import common
 
-from atlassian import Jira
 from requests.exceptions import HTTPError
 
 
 def ingest_findings(secrets, findings_filter, dry_run=False):
     # configure Client and Filter criteria
-    endor = EndorLabsClient(secrets['endor']['namespace'], auth={'key': secrets['endor']['api_key'], 'secret': secrets['endor']['api_secret']})
-    endor.filter = findings_filter
-
-
-    JIRA_TICKET_CONFIG = {
-        'project': secrets['jira']['project'],
-        'type': secrets['jira']['issue_type']
-    }
-
-    jira = Jira(
-        url=secrets['jira']['url'],
-        username=secrets['jira']['username'],
-        password=secrets['jira']['token']
-    )
+    endor = common.create_endor_client(secrets, findings_filter)
+    jira, JIRA_TICKET_CONFIG = common.create_jira_client(secrets)
 
     for entry in endor.findings():
         finding=entry["finding"]
