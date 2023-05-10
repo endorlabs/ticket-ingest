@@ -5,6 +5,9 @@ on:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read  # Required by actions/checkout@v3 to checkout a private repository
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -14,7 +17,5 @@ jobs:
       - name: Scan with Endor Labs
         uses: endorlabs/github-action@main
         with:
-          api_key: ${{ vars.ENDOR_API_KEY }}
-          api_secret: ${{ secrets.ENDOR_API_SECRET }}
           namespace: "darren-learn"
           ci_run: false
