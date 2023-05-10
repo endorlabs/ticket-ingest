@@ -15,7 +15,7 @@ pip3 install 'git+https://github.com/endorlabs/ticket-ingest.git'
 # Command-line usage (alpha):
 
 ```
-usage: endor-ticket-ingestion [-h] [--filter FILTER] [--dry-run] secrets_file
+usage: endor-ticket-ingestion [-h] [--filter FILTER] [--dry-run] [--group-by-dep] secrets_file
 
 Ingests findings from Endor Labs into Jira issues
 
@@ -26,11 +26,31 @@ options:
   -h, --help       show this help message and exit
   --filter FILTER  Specify a filter
   --dry-run        Don't actually create issues
+  --group-by-dep   Use ingestion path that generates one issue per dependency version
 ```
 
-Default secrets file is `ingestion.secret` in the current directory. Copy [ingestion.secret.example](ingestion.secret.example) and edit with your Endor Labs API and Jira Cloud URL/username/api-token ([manage your Atlassian Tokens here](https://id.atlassian.com/manage/api-tokens)).
+Default secrets file is `ingestion.secret` in the current directory. Copy [ingestion.secret.example](ingestion.secret.example) and edit with your Endor Labs API and Jira Cloud URL/username/api-token ([manage your Atlassian Tokens here](https://id.atlassian.com/manage/api-tokens)) and additional ingestion configuration.
 
 > **NOTE**: since these are credentials, please take care to make the file read only!
+
+## `--group-by-dep`
+
+This option changes the ingestion path to do the following:
+
+* Create one Jira issue of type `issue_type` with a summary like "**[Endor Labs] Dependency *package_version* has *x* risks affecting *y* packages**"
+  * The description of the issue will have a section for each 1st-party package affected by vulns in that package version
+  * This single issue represents *all* the vulnerabilities in a given dependency, in *all* the 1st-party packages affected
+* Create a sub-task to update the vulnerable dependency for each 1st-party package (i.e. each section in the main issue will have a subtask as well)
+  * The type of the sub-task is defined by `subtask_type` in your Jira configuration section
+
+This ingestion path has some downsides to be aware of:
+
+* It only opens issues for _vulnerability_ finding types; you'll need to make sure your filter is set accordingly
+* It has a higher chance of issue duplication, as it's more difficult to determine whether an issue is a duplicate when there are small changes to sub-issues or other contents
+* It is _very_ noisy if your filter does not exclude "CI run" findings. We make an attempt to do this automatically, but strongly recommend testing throughly with `--dry-run` before opening tickets
+* It does not attach reachable call-graph data to issues, since there's not a 1:1 issue:finding relationship; this may be improved in the future
+
+**Note** to distinguish these tickets from other ingestion paths, the tickets created lead with `[Endor Labs]` rather than `[endor: <uuid>]`
 
 
 # Module usage
