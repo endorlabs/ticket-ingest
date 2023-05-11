@@ -6,6 +6,7 @@ test-*.py
 
 .venv/
 .hypothesis/
+dist/
 __pycache__
 *.pyc
 *.tmp
